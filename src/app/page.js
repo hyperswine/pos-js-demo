@@ -357,40 +357,28 @@ const PosSystem = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-900">Quantii System</h1>
+          <div className="flex items-center h-16 space-x-4">
+            {/* Logo and Loading - Always visible */}
+            <div className="flex items-center space-x-3 flex-shrink-0">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Quantii</h1>
               {loading && (
                 <div className="flex items-center space-x-2 text-blue-600">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  <span className="text-sm">Syncing...</span>
+                  <span className="text-xs sm:text-sm hidden sm:inline">Syncing...</span>
                 </div>
               )}
             </div>
 
-            {/* Error Display */}
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-1 rounded text-sm">
-                {error}
-                <button
-                  onClick={() => setError('')}
-                  className="ml-2 text-red-900 hover:text-red-700"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-
-            {/* Global Search */}
-            <div className="flex-1 max-w-lg mx-4 relative">
+            {/* Global Search - Responsive */}
+            <div className="flex-1 max-w-md mx-2 sm:mx-4 relative">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
-                  placeholder="Search items, features..."
+                  placeholder="Search..."
                   value={globalSearch}
                   onChange={(e) => setGlobalSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-600"
+                  className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:border-blue-500 text-gray-600"
                 />
               </div>
 
@@ -406,9 +394,9 @@ const PosSystem = () => {
                       }}
                       className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                     >
-                      <div className="font-medium text-gray-900">{result.title}</div>
+                      <div className="font-medium text-gray-900 text-sm">{result.title}</div>
                       {result.subtitle && (
-                        <div className="text-sm text-gray-600">{result.subtitle}</div>
+                        <div className="text-xs text-gray-600">{result.subtitle}</div>
                       )}
                       <div className="text-xs text-blue-600 mt-1">
                         {result.type === 'nav' ? 'Feature' : 'Item'}
@@ -419,21 +407,38 @@ const PosSystem = () => {
               )}
             </div>
 
+            {/* Logout Button - Responsive */}
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-800 hover:text-gray-900"
+              className="flex items-center space-x-1 sm:space-x-2 text-gray-800 hover:text-gray-900 flex-shrink-0"
             >
-              <LogOut size={20} />
-              <span>Logout</span>
+              <LogOut size={18} />
+              <span className="hidden sm:inline text-sm">Logout</span>
             </button>
           </div>
+
+          {/* Error Display - Below header on mobile */}
+          {error && (
+            <div className="pb-3">
+              <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                {error}
+                <button
+                  onClick={() => setError('')}
+                  className="ml-2 text-red-900 hover:text-red-700 float-right"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Navigation */}
+        {/* Navigation - Mobile Responsive */}
         <nav className="mb-6">
-          <div className="flex space-x-4">
+          {/* Desktop Navigation - Hidden on mobile */}
+          <div className="hidden md:flex space-x-4">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: Users },
               { id: 'inventory', label: 'Inventory', icon: Package },
@@ -450,6 +455,28 @@ const PosSystem = () => {
               >
                 <Icon size={20} />
                 <span>{label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile Navigation - Grid layout for small screens */}
+          <div className="grid grid-cols-2 gap-2 md:hidden">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: Users },
+              { id: 'inventory', label: 'Inventory', icon: Package },
+              { id: 'pos', label: 'Point of Sale', icon: ShoppingCart },
+              { id: 'transactions', label: 'Transactions', icon: Receipt }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setCurrentView(id)}
+                className={`flex flex-col items-center justify-center px-3 py-3 rounded-lg transition-colors text-sm ${currentView === id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white text-gray-800 hover:bg-gray-50'
+                  }`}
+              >
+                <Icon size={18} />
+                <span className="mt-1 leading-tight">{label}</span>
               </button>
             ))}
           </div>
@@ -478,30 +505,30 @@ const PosSystem = () => {
         {/* Inventory Management */}
         {currentView === 'inventory' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Inventory Management</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Inventory Management</h2>
               <button
                 onClick={() => setEditingItem({})}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center justify-center space-x-2 w-full sm:w-auto"
               >
-                <Plus size={20} />
+                <Plus size={18} />
                 <span>Add Item</span>
               </button>
             </div>
 
             {/* Add/Edit Form */}
             {editingItem && (
-              <div className="bg-white p-6 rounded-lg shadow">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
                 <h3 className="text-lg font-semibold mb-4">
                   {editingItem.id ? 'Edit Item' : 'Add New Item'}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <input
                     type="text"
                     placeholder="Item Name"
                     value={itemForm.name}
                     onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-700"
                   />
                   <input
                     type="number"
@@ -509,31 +536,31 @@ const PosSystem = () => {
                     placeholder="Price"
                     value={itemForm.price}
                     onChange={(e) => setItemForm({ ...itemForm, price: e.target.value })}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-700"
                   />
                   <input
                     type="number"
                     placeholder="Stock Quantity"
                     value={itemForm.stock}
                     onChange={(e) => setItemForm({ ...itemForm, stock: e.target.value })}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-700"
                   />
                   <input
                     type="text"
                     placeholder="Category"
                     value={itemForm.category}
                     onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-700"
                   />
                   <input
                     type="text"
                     placeholder="SKU"
                     value={itemForm.sku}
                     onChange={(e) => setItemForm({ ...itemForm, sku: e.target.value })}
-                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                    className="px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-700"
                   />
                 </div>
-                <div className="mt-4 space-x-2">
+                <div className="mt-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <button
                     onClick={editingItem.id ? handleEditItem : handleAddItem}
                     disabled={loading}
@@ -560,49 +587,54 @@ const PosSystem = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Category</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">SKU</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {inventory.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{item.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">${item.price.toFixed(2)}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <div className="font-medium text-gray-900 text-sm">{item.name}</div>
+                          <div className="text-xs text-gray-600 sm:hidden">{item.category}</div>
+                        </td>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-800 text-sm">${item.price.toFixed(2)}</td>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 text-xs rounded-full ${item.stock < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                             }`}>
                             {item.stock}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">{item.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-600">{item.sku}</td>
-                        <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                          <button
-                            onClick={() => {
-                              setEditingItem(item)
-                              setItemForm({
-                                name: item.name,
-                                price: item.price.toString(),
-                                stock: item.stock.toString(),
-                                category: item.category,
-                                sku: item.sku
-                              })
-                            }}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteItem(item.id)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-800 text-sm hidden sm:table-cell">{item.category}</td>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-gray-600 text-sm hidden md:table-cell">{item.sku}</td>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => {
+                                setEditingItem(item)
+                                setItemForm({
+                                  name: item.name,
+                                  price: item.price.toString(),
+                                  stock: item.stock.toString(),
+                                  category: item.category,
+                                  sku: item.sku
+                                })
+                              }}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -618,56 +650,56 @@ const PosSystem = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Product Selection */}
             <div className="lg:col-span-2">
-              <h2 className="text-2xl font-bold mb-4 text-gray-900">Products</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-900">Products</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 {inventory.filter(item => item.stock > 0).map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-white p-3 sm:p-4 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
                     onClick={() => addToCart(item)}
                   >
-                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                    <p className="text-gray-700">{item.category}</p>
-                    <p className="text-lg font-bold text-green-600">${item.price.toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">Stock: {item.stock}</p>
+                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{item.name}</h3>
+                    <p className="text-gray-700 text-xs sm:text-sm">{item.category}</p>
+                    <p className="text-base sm:text-lg font-bold text-green-600">${item.price.toFixed(2)}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Stock: {item.stock}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Cart */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-xl font-semibold mb-4">Cart</h3>
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+              <h3 className="text-lg sm:text-xl font-semibold mb-4">Cart</h3>
               {cart.length === 0 ? (
-                <p className="text-gray-500">Cart is empty</p>
+                <p className="text-gray-500 text-center py-8">Cart is empty</p>
               ) : (
                 <>
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-3 mb-4 max-h-64 sm:max-h-80 overflow-y-auto">
                     {cart.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-700">${item.price.toFixed(2)} each</p>
+                      <div key={item.id} className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 text-sm truncate">{item.name}</p>
+                          <p className="text-xs text-gray-700">${item.price.toFixed(2)} each</p>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-1 ml-2">
                           <button
                             onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                            className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm"
+                            className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm hover:bg-gray-300"
                           >
                             -
                           </button>
-                          <span className="w-8 text-center">{item.quantity}</span>
+                          <span className="w-8 text-center text-sm">{item.quantity}</span>
                           <button
                             onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                            className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm"
+                            className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm hover:bg-gray-300"
                           >
                             +
                           </button>
                           <button
                             onClick={() => removeFromCart(item.id)}
-                            className="text-red-600 hover:text-red-800 ml-2"
+                            className="text-red-600 hover:text-red-800 ml-1"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
@@ -675,15 +707,15 @@ const PosSystem = () => {
                   </div>
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-xl font-bold">Total:</span>
-                      <span className="text-xl font-bold">
+                      <span className="text-lg sm:text-xl font-bold">Total:</span>
+                      <span className="text-lg sm:text-xl font-bold text-green-600">
                         ${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
                       </span>
                     </div>
                     <button
                       onClick={processTransaction}
                       disabled={loading}
-                      className="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     >
                       {loading ? 'Processing...' : 'Complete Transaction'}
                     </button>
@@ -697,27 +729,27 @@ const PosSystem = () => {
         {/* Transactions */}
         {currentView === 'transactions' && (
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-gray-900">Transaction History</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900">Transaction History</h2>
             {transactions.length === 0 ? (
-              <div className="bg-white p-8 rounded-lg shadow text-center">
+              <div className="bg-white p-6 sm:p-8 rounded-lg shadow text-center">
                 <p className="text-gray-500">No transactions yet</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {transactions.map((transaction) => (
-                  <div key={transaction.id} className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex justify-between items-start mb-4">
+                  <div key={transaction.id} className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4">
                       <div>
-                        <h3 className="font-semibold text-gray-900">Transaction #{transaction.id}</h3>
-                        <p className="text-gray-700">{transaction.timestampFormatted || transaction.timestamp}</p>
+                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Transaction #{transaction.id}</h3>
+                        <p className="text-gray-700 text-xs sm:text-sm">{transaction.timestampFormatted || transaction.timestamp}</p>
                       </div>
-                      <p className="text-xl font-bold text-green-600">
+                      <p className="text-lg sm:text-xl font-bold text-green-600 mt-2 sm:mt-0">
                         ${transaction.total.toFixed(2)}
                       </p>
                     </div>
                     <div className="space-y-2">
                       {transaction.items.map((item, index) => (
-                        <div key={index} className="flex justify-between text-sm">
+                        <div key={index} className="flex justify-between text-xs sm:text-sm">
                           <span className="text-gray-800">{item.name} x{item.quantity}</span>
                           <span className="text-gray-800">${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
