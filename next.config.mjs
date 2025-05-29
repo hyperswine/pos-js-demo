@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 // Determine if we're building for GitHub Pages
-const isGithubPages = process.env.GITHUB_ACTIONS === 'true' || process.env.NODE_ENV === 'production';
+const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
+const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
   output: 'export',
@@ -10,7 +11,7 @@ const nextConfig = {
     unoptimized: true
   },
   // Only add basePath when building for GitHub Pages
-  ...(isGithubPages && {
+  ...(isGithubActions && {
     basePath: '/pos-js-demo',
     assetPrefix: '/pos-js-demo/'
   })
