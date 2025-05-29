@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { Search, Plus, Edit, Trash2, ShoppingCart, Receipt, Package, Users, LogOut, Eye, EyeOff } from 'lucide-react'
+import { inventoryService, transactionService } from '../lib/firestore'
+import { getAccessKey } from '../lib/config'
 
 const PosSystem = () => {
   // Authentication state
@@ -13,11 +15,70 @@ const PosSystem = () => {
   // Main app state
   const [currentView, setCurrentView] = useState('dashboard')
   const [globalSearch, setGlobalSearch] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   // Handle client-side hydration
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // Load data from Firestore when app starts
+  useEffect(() => {
+    if (isAuthenticated && isClient) {
+      loadInitialData()
+    }
+  }, [isAuthenticated, isClient])
+
+  // Set up real-time listeners
+  useEffect(() => {
+    if (!isAuthenticated || !isClient) return
+
+    let unsubscribeInventory, unsubscribeTransactions
+
+    const setupListeners = async () => {
+      try {
+        // Set up real-time listeners
+        unsubscribeInventory = inventoryService.subscribe((updatedInventory) => {
+          setInventory(updatedInventory)
+        })
+
+        unsubscribeTransactions = transactionService.subscribe((updatedTransactions) => {
+          setTransactions(updatedTransactions)
+        })
+      } catch (err) {
+        console.error('Error setting up real-time listeners:', err)
+      }
+    }
+
+    setupListeners()
+
+    // Cleanup function
+    return () => {
+      if (unsubscribeInventory) unsubscribeInventory()
+      if (unsubscribeTransactions) unsubscribeTransactions()
+    }
+  }, [isAuthenticated, isClient])
+
+  // Load initial data from Firestore
+  const loadInitialData = async () => {
+    setLoading(true)
+    try {
+      const [inventoryData, transactionData] = await Promise.all([
+        inventoryService.getAll(),
+        transactionService.getAll()
+      ])
+      setInventory(inventoryData)
+      setTransactions(transactionData)
+      setError('')
+    } catch (err) {
+      console.error('Error loading data:', err)
+      setError('Failed to load data. Using offline mode.')
+      // Keep default data if Firestore fails
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Inventory state
   const [inventory, setInventory] = useState([
@@ -40,7 +101,8 @@ const PosSystem = () => {
   // Authentication
   const handleLogin = (e) => {
     e.preventDefault()
-    if (loginKey === 'admin123') {
+    const validKey = getAccessKey()
+    if (loginKey === validKey) {
       setIsAuthenticated(true)
       setLoginKey('')
     } else {
@@ -94,11 +156,10 @@ const PosSystem = () => {
   }, [globalSearch, searchableItems])
 
   // Inventory management
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (!itemForm.name || !itemForm.price) return
 
     const newItem = {
-      id: Date.now(),
       name: itemForm.name,
       price: parseFloat(itemForm.price),
       stock: parseInt(itemForm.stock) || 0,
@@ -106,34 +167,62 @@ const PosSystem = () => {
       sku: itemForm.sku || `SKU${Date.now()}`
     }
 
-    setInventory([...inventory, newItem])
-    setItemForm({ name: '', price: '', stock: '', category: '', sku: '' })
-    setEditingItem(null)
+    setLoading(true)
+    try {
+      const id = await inventoryService.add(newItem)
+      setInventory([...inventory, { id, ...newItem }])
+      setItemForm({ name: '', price: '', stock: '', category: '', sku: '' })
+      setEditingItem(null)
+      setError('')
+    } catch (err) {
+      console.error('Error adding item:', err)
+      setError('Failed to add item. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleEditItem = () => {
+  const handleEditItem = async () => {
     if (!itemForm.name || !itemForm.price) return
 
-    setInventory(inventory.map(item =>
-      item.id === editingItem.id
-        ? {
-          ...item,
-          name: itemForm.name,
-          price: parseFloat(itemForm.price),
-          stock: parseInt(itemForm.stock) || 0,
-          category: itemForm.category || 'General',
-          sku: itemForm.sku || item.sku
-        }
-        : item
-    ))
+    const updates = {
+      name: itemForm.name,
+      price: parseFloat(itemForm.price),
+      stock: parseInt(itemForm.stock) || 0,
+      category: itemForm.category || 'General',
+      sku: itemForm.sku || editingItem.sku
+    }
 
-    setItemForm({ name: '', price: '', stock: '', category: '', sku: '' })
-    setEditingItem(null)
+    setLoading(true)
+    try {
+      await inventoryService.update(editingItem.id, updates)
+      setInventory(inventory.map(item =>
+        item.id === editingItem.id ? { ...item, ...updates } : item
+      ))
+      setItemForm({ name: '', price: '', stock: '', category: '', sku: '' })
+      setEditingItem(null)
+      setError('')
+    } catch (err) {
+      console.error('Error updating item:', err)
+      setError('Failed to update item. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleDeleteItem = (id) => {
-    if (confirm('Are you sure you want to delete this item?')) {
+  const handleDeleteItem = async (id) => {
+    if (!confirm('Are you sure you want to delete this item?')) return
+
+    setLoading(true)
+    try {
+      await inventoryService.delete(id)
       setInventory(inventory.filter(item => item.id !== id))
+      setError('')
+    } catch (err) {
+      console.error('Error deleting item:', err)
+      setError('Failed to delete item. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -165,28 +254,50 @@ const PosSystem = () => {
     ))
   }
 
-  const processTransaction = () => {
+  const processTransaction = async () => {
     if (cart.length === 0) return
 
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     const transaction = {
-      id: Date.now(),
       items: [...cart],
       total,
-      timestamp: new Date().toLocaleString()
+      timestamp: new Date().toISOString(),
+      timestampFormatted: new Date().toLocaleString()
     }
 
-    // Update inventory
-    setInventory(inventory.map(item => {
-      const cartItem = cart.find(ci => ci.id === item.id)
-      return cartItem
-        ? { ...item, stock: Math.max(0, item.stock - cartItem.quantity) }
-        : item
-    }))
+    setLoading(true)
+    try {
+      // Save transaction to Firestore
+      const transactionId = await transactionService.add(transaction)
 
-    setTransactions([transaction, ...transactions])
-    setCart([])
-    alert(`Transaction completed! Total: $${total.toFixed(2)}`)
+      // Update inventory in Firestore and local state
+      const inventoryUpdates = []
+      for (const cartItem of cart) {
+        const inventoryItem = inventory.find(item => item.id === cartItem.id)
+        if (inventoryItem) {
+          const newStock = Math.max(0, inventoryItem.stock - cartItem.quantity)
+          await inventoryService.update(cartItem.id, { stock: newStock })
+          inventoryUpdates.push({ ...inventoryItem, stock: newStock })
+        }
+      }
+
+      // Update local inventory state
+      setInventory(inventory.map(item => {
+        const updated = inventoryUpdates.find(updated => updated.id === item.id)
+        return updated || item
+      }))
+
+      // Update local transactions state
+      setTransactions([{ id: transactionId, ...transaction }, ...transactions])
+      setCart([])
+      setError('')
+      alert(`Transaction completed! Total: $${total.toFixed(2)}`)
+    } catch (err) {
+      console.error('Error processing transaction:', err)
+      setError('Failed to process transaction. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Show loading state during hydration
@@ -248,7 +359,28 @@ const PosSystem = () => {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold text-gray-900">Quantii System</h1>
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-semibold text-gray-900">Quantii System</h1>
+              {loading && (
+                <div className="flex items-center space-x-2 text-blue-600">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  <span className="text-sm">Syncing...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-1 rounded text-sm">
+                {error}
+                <button
+                  onClick={() => setError('')}
+                  className="ml-2 text-red-900 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </div>
+            )}
 
             {/* Global Search */}
             <div className="flex-1 max-w-lg mx-4 relative">
@@ -405,9 +537,10 @@ const PosSystem = () => {
                 <div className="mt-4 space-x-2">
                   <button
                     onClick={editingItem.id ? handleEditItem : handleAddItem}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                    disabled={loading}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {editingItem.id ? 'Update' : 'Add'} Item
+                    {loading ? 'Saving...' : (editingItem.id ? 'Update' : 'Add')} Item
                   </button>
                   <button
                     onClick={() => {
@@ -550,9 +683,10 @@ const PosSystem = () => {
                     </div>
                     <button
                       onClick={processTransaction}
-                      className="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 font-semibold"
+                      disabled={loading}
+                      className="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Complete Transaction
+                      {loading ? 'Processing...' : 'Complete Transaction'}
                     </button>
                   </div>
                 </>
@@ -576,7 +710,7 @@ const PosSystem = () => {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="font-semibold text-gray-900">Transaction #{transaction.id}</h3>
-                        <p className="text-gray-700">{transaction.timestamp}</p>
+                        <p className="text-gray-700">{transaction.timestampFormatted || transaction.timestamp}</p>
                       </div>
                       <p className="text-xl font-bold text-green-600">
                         ${transaction.total.toFixed(2)}
