@@ -8,10 +8,16 @@ const PosSystem = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loginKey, setLoginKey] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   // Main app state
   const [currentView, setCurrentView] = useState('dashboard')
   const [globalSearch, setGlobalSearch] = useState('')
+
+  // Handle client-side hydration
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // Inventory state
   const [inventory, setInventory] = useState([
@@ -181,6 +187,17 @@ const PosSystem = () => {
     setTransactions([transaction, ...transactions])
     setCart([])
     alert(`Transaction completed! Total: $${total.toFixed(2)}`)
+  }
+
+  // Show loading state during hydration
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md w-96">
+          <h1 className="text-2xl font-bold text-center mb-6">Loading...</h1>
+        </div>
+      </div>
+    )
   }
 
   // Login screen
