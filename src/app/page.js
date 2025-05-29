@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Search, Plus, Edit, Trash2, ShoppingCart, Receipt, Package, Users, LogOut, Eye, EyeOff } from 'lucide-react'
 import { inventoryService, transactionService } from '../lib/firestore'
+import PWAInstallPrompt from '../components/PWAInstallPrompt'
+import PWAStatus from '../components/PWAStatus'
 
 const PosSystem = () => {
   // Authentication state
@@ -762,6 +764,10 @@ const PosSystem = () => {
           </div>
         )}
       </div>
+
+      {/* PWA Components */}
+      <PWAInstallPrompt />
+      <PWAStatus />
     </div>
   )
 }
