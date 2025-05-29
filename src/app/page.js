@@ -205,7 +205,7 @@ const PosSystem = () => {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md w-96">
-          <h1 className="text-2xl font-bold text-center mb-6">Quantii System Login</h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">Quantii System Login</h1>
           <div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
