@@ -248,7 +248,7 @@ const PosSystem = () => {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold">Quantii System</h1>
+            <h1 className="text-xl font-semibold text-gray-900">Quantii System</h1>
 
             {/* Global Search */}
             <div className="flex-1 max-w-lg mx-4 relative">
@@ -259,7 +259,7 @@ const PosSystem = () => {
                   placeholder="Search items, features..."
                   value={globalSearch}
                   onChange={(e) => setGlobalSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 text-gray-600"
                 />
               </div>
 
@@ -277,9 +277,9 @@ const PosSystem = () => {
                     >
                       <div className="font-medium text-gray-900">{result.title}</div>
                       {result.subtitle && (
-                        <div className="text-sm text-gray-500">{result.subtitle}</div>
+                        <div className="text-sm text-gray-600">{result.subtitle}</div>
                       )}
-                      <div className="text-xs text-blue-500 mt-1">
+                      <div className="text-xs text-blue-600 mt-1">
                         {result.type === 'nav' ? 'Feature' : 'Item'}
                       </div>
                     </button>
@@ -290,7 +290,7 @@ const PosSystem = () => {
 
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+              className="flex items-center space-x-2 text-gray-800 hover:text-gray-900"
             >
               <LogOut size={20} />
               <span>Logout</span>
@@ -314,7 +314,7 @@ const PosSystem = () => {
                 onClick={() => setCurrentView(id)}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${currentView === id
                     ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                    : 'bg-white text-gray-800 hover:bg-gray-50'
                   }`}
               >
                 <Icon size={20} />
@@ -328,17 +328,17 @@ const PosSystem = () => {
         {currentView === 'dashboard' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold mb-2">Total Items</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900">Total Items</h3>
               <p className="text-3xl font-bold text-blue-600">{inventory.length}</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold mb-2">Total Stock</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900">Total Stock</h3>
               <p className="text-3xl font-bold text-green-600">
                 {inventory.reduce((sum, item) => sum + item.stock, 0)}
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold mb-2">Transactions Today</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900">Transactions Today</h3>
               <p className="text-3xl font-bold text-purple-600">{transactions.length}</p>
             </div>
           </div>
@@ -348,7 +348,7 @@ const PosSystem = () => {
         {currentView === 'inventory' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Inventory Management</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Inventory Management</h2>
               <button
                 onClick={() => setEditingItem({})}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2"
@@ -439,16 +439,16 @@ const PosSystem = () => {
                   <tbody className="divide-y divide-gray-200">
                     {inventory.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap font-medium">{item.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">${item.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{item.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">${item.price.toFixed(2)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 text-xs rounded-full ${item.stock < 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                             }`}>
                             {item.stock}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">{item.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-500">{item.sku}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-800">{item.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-600">{item.sku}</td>
                         <td className="px-6 py-4 whitespace-nowrap space-x-2">
                           <button
                             onClick={() => {
@@ -486,7 +486,7 @@ const PosSystem = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Product Selection */}
             <div className="lg:col-span-2">
-              <h2 className="text-2xl font-bold mb-4">Products</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-900">Products</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {inventory.filter(item => item.stock > 0).map((item) => (
                   <div
@@ -494,10 +494,10 @@ const PosSystem = () => {
                     className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
                     onClick={() => addToCart(item)}
                   >
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-gray-600">{item.category}</p>
+                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                    <p className="text-gray-700">{item.category}</p>
                     <p className="text-lg font-bold text-green-600">${item.price.toFixed(2)}</p>
-                    <p className="text-sm text-gray-500">Stock: {item.stock}</p>
+                    <p className="text-sm text-gray-600">Stock: {item.stock}</p>
                   </div>
                 ))}
               </div>
@@ -514,8 +514,8 @@ const PosSystem = () => {
                     {cart.map((item) => (
                       <div key={item.id} className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-gray-600">${item.price.toFixed(2)} each</p>
+                          <p className="font-medium text-gray-900">{item.name}</p>
+                          <p className="text-sm text-gray-700">${item.price.toFixed(2)} each</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
@@ -564,7 +564,7 @@ const PosSystem = () => {
         {/* Transactions */}
         {currentView === 'transactions' && (
           <div>
-            <h2 className="text-2xl font-bold mb-6">Transaction History</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">Transaction History</h2>
             {transactions.length === 0 ? (
               <div className="bg-white p-8 rounded-lg shadow text-center">
                 <p className="text-gray-500">No transactions yet</p>
@@ -575,8 +575,8 @@ const PosSystem = () => {
                   <div key={transaction.id} className="bg-white p-6 rounded-lg shadow">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="font-semibold">Transaction #{transaction.id}</h3>
-                        <p className="text-gray-600">{transaction.timestamp}</p>
+                        <h3 className="font-semibold text-gray-900">Transaction #{transaction.id}</h3>
+                        <p className="text-gray-700">{transaction.timestamp}</p>
                       </div>
                       <p className="text-xl font-bold text-green-600">
                         ${transaction.total.toFixed(2)}
@@ -585,8 +585,8 @@ const PosSystem = () => {
                     <div className="space-y-2">
                       {transaction.items.map((item, index) => (
                         <div key={index} className="flex justify-between text-sm">
-                          <span>{item.name} x{item.quantity}</span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="text-gray-800">{item.name} x{item.quantity}</span>
+                          <span className="text-gray-800">${(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
