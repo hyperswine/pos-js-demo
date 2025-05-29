@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-icons": "node generate-icons.js",
-    "build-pwa": "npm run generate-icons && npm run build"
+    "build-pwa": "npm run build"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
