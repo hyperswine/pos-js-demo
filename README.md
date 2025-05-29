@@ -53,19 +53,21 @@ A modern Point of Sale (POS) system built with Next.js and Firebase Firestore. F
    - Open http://localhost:3000
    - Login with demo key: `admin123`
 
-## Deployment
+## 🚀 Deployment
 
-### GitHub Pages
+### Vercel (Recommended)
+The easiest way to deploy your POS system:
 
-- See `DEPLOYMENT.md` for complete setup instructions
-- Configure GitHub secrets with your Firebase config
-- Push to `main` branch for automatic deployment
+1. Connect your GitHub repo to [Vercel](https://vercel.com)
+2. Add your Firebase environment variables in Vercel dashboard
+3. Deploy automatically on every git push
+
+**Detailed guide:** `VERCEL_DEPLOYMENT.md`
 
 ### Other Platforms
-
-- **Vercel**: Connect repo, add environment variables, deploy
-- **Netlify**: Connect repo, configure build settings, deploy
-- **Self-hosted**: Build locally and upload `out/` folder
+- **Netlify**: Works great with environment variable support
+- **Railway**: Good alternative with database hosting
+- **Self-hosted**: Deploy anywhere with Node.js support
 
 ## Demo Key
 
@@ -140,16 +142,6 @@ The application requires Firebase configuration. See `FIREBASE_SETUP.md` for det
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
-
-## Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Set up your Firebase configuration as environment variables
-3. Deploy automatically on git push
-
-### Other Platforms
-The app can be deployed to any platform that supports Next.js applications.
 
 ## Contributing
 

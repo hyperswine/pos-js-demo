@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Search, Plus, Edit, Trash2, ShoppingCart, Receipt, Package, Users, LogOut, Eye, EyeOff } from 'lucide-react'
 import { inventoryService, transactionService } from '../lib/firestore'
-import { getAccessKey } from '../lib/config'
 
 const PosSystem = () => {
   // Authentication state
@@ -101,7 +100,7 @@ const PosSystem = () => {
   // Authentication
   const handleLogin = (e) => {
     e.preventDefault()
-    const validKey = getAccessKey()
+    const validKey = process.env.NEXT_PUBLIC_ACCESS_KEY || 'admin123'
     if (loginKey === validKey) {
       setIsAuthenticated(true)
       setLoginKey('')
